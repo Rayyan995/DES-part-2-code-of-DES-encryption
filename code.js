@@ -262,9 +262,5 @@ function DESdecryption() {
 
     finalCipher = permutation(cipherTxt, P_1);
     console.log('___finalDecTxt___:', finalCipher);
-    console.log('___finalDecTxt___:', finalCipher);
-    console.log('___finalDecTxt___:', finalCipher);
-    console.log('___finalDecTxt___:', finalCipher);
-    console.log('___finalDecTxt___:', finalCipher);
 }
 DESdecryption();

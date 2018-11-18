@@ -60,8 +60,6 @@ const P__ = [16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10, 2, 8, 
 const P_1 = [40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61, 
     29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27, 34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25]
 
-console.log(all_sBox[0][0][1]);
-
 function permutation(inputKey, PC_X) { // fun(1) ... for first and second key permutation...
     let permutedKey = '';
     PC_X.map((elem) => {
@@ -83,7 +81,6 @@ function divider(dataToDivided) { // fun(2) ... for dividing the key to tow part
     }
     return [leftHalf, rightHalf];
 }
-
 function circularShiftLeft(arr) { // fun(3)
     let newArr = '';
     for (let i = 1; i < arr.length; i++) {
@@ -119,10 +116,10 @@ function keyOperations() { // fun(4)      __Edited__
         let permutedKey = permutation(entireKey[i], PC_2);
         finalEntireKey.push(permutedKey); // 48-bit
     }
-    console.log('leftSubKeys:', leftSubKeys);
-    console.log('rightSubKeys:', rightSubKeys);
-    console.log('entireKey:', entireKey);
-    console.log('finalEntireKey:', finalEntireKey);
+    // console.log('leftSubKeys:', leftSubKeys);
+    // console.log('rightSubKeys:', rightSubKeys);
+    // console.log('entireKey:', entireKey);
+    // console.log('finalEntireKey:', finalEntireKey);
     return finalEntireKey;
 }
 /* End of subkeys generation */
@@ -142,7 +139,6 @@ function expansion(inputRight) {
         - 4-bit blocks --> input before expanding   R0 = 1111 0000 1010 1010 1111 0000 1010 1010 
         - 6-bit blocks --> input after expanding E(R0) = 011110 100001 010101 010101 011110 100001 010101 010101 */
         preBit = (count + 31) % 32;
-        console.log(preBit)
         expandedBlock += inputRight[preBit]
         for (j = 0; j < 4; j++ , count++) {
             expandedBlock += inputRight[count];
@@ -198,11 +194,10 @@ function sBoxOperations(blocks) { // apply all operations of s-box...
             fourBitsBlock = '0' + fourBitsBlock;
         }
         sBoxSelection.push(fourBitsBlock);
-        console.log(row, col);
     }
     return sBoxSelection;
 }
-// mngler  function in DES
+// mangler  function in DES
 function manglerFun(inputRight, kIndex) {
     const expandedInput = expansion(inputRight);
     const finalEntireKey = keyOperations();
@@ -210,14 +205,11 @@ function manglerFun(inputRight, kIndex) {
 
     // start of s-box functions ----------
     let blocks = sixBitBlocks(exInputXORKey); // get eight 6bit-blocks 
-    console.log(blocks);
     let fourBitBlocks = sBoxOperations(blocks); // get eight 4bit-blocks  from get eight 6bit-blocks 
     fourBitBlocks = fourBitBlocks.toString().replace(/,/ig, '');
-    console.log('fourBitBlocks', fourBitBlocks);
     // End of s-box functions -----------
 
     const p = permutation(fourBitBlocks, P__);// applying 'P__' permutation on s-box output, and that's last operation in 'mangler function'
-    console.log('p: ', p);
     return p;
 }
 // Main function for operations applied to input -----------------------------------------//
@@ -238,13 +230,41 @@ function DESEncryption() {
         RIGHT_INPUT = XOR(manglerFunOut, LEFT_INPUT);
         LEFT_INPUT = tempRightInput;
     }
-    console.log('LEFT_INPUT_16: ', LEFT_INPUT);
-    console.log('RIGHT_INPUT_16:', RIGHT_INPUT);
+    console.log('LEFT_INPUT_16_from_ENC: ', LEFT_INPUT);
+    console.log('__RIGHT_INPUT_16_from_ENC:', RIGHT_INPUT);
+    // We reverse the order of these two blocks and apply the final permutation(P_) //
+    const cipherTxt = RIGHT_INPUT + LEFT_INPUT; 
+    finalCipher = permutation(cipherTxt, P_1);
+    console.log('__finalCipher__', finalCipher);
+    return finalCipher;
+}
+function DESdecryption() {
+    let finalCipher = DESEncryption();
+    console.log('___________________________limiter between Enc and Dec____________________________');
+    // Start functions that are DONE only one time---- 
+    const intitPermutation = permutation(finalCipher, IP);
+    LEFT_INPUT = divider(intitPermutation)[0];
+    RIGHT_INPUT = divider(intitPermutation)[1];
+    // End functions that are DONE only one time---- 
+
+    let manglerFunOut;
+    for (let i = 15; i >= 0; i--) {
+        manglerFunOut = manglerFun(RIGHT_INPUT, i);
+        tempRightInput = RIGHT_INPUT;
+        RIGHT_INPUT = XOR(manglerFunOut, LEFT_INPUT);
+        LEFT_INPUT = tempRightInput;
+    }
+    console.log('LEFT_INPUT_16_from_DEC: ', LEFT_INPUT);
+    console.log('__RIGHT_INPUT_16_from_DEC:', RIGHT_INPUT);
 
     const cipherTxt = RIGHT_INPUT + LEFT_INPUT; // We reverse the order of these two blocks and apply the final permutation(P_)
-    console.log('cipherTxt:', cipherTxt);
+    console.log('__decTxt_from_DEC:', cipherTxt);
 
     finalCipher = permutation(cipherTxt, P_1);
-    console.log('finalCipher:', finalCipher);
+    console.log('___finalDecTxt___:', finalCipher);
+    console.log('___finalDecTxt___:', finalCipher);
+    console.log('___finalDecTxt___:', finalCipher);
+    console.log('___finalDecTxt___:', finalCipher);
+    console.log('___finalDecTxt___:', finalCipher);
 }
-DESEncryption();
+DESdecryption();
